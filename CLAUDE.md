@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Status
 
-Greenfield. Scope is `prd.md`. No app code yet; task `R100-T01` scaffolds it and must replace this
+Greenfield. Scope is `docs/proyecto.md` §Product. No app code yet; task `R100-T01` scaffolds it and must replace this
 section with the real commands (dev, build, lint, typecheck, `test:db`, single test).
 
 ## How work happens
@@ -48,4 +48,4 @@ Mobile-first, one large thumb-reachable button, large numerals.
 ## Out of MVP
 
 Leaderboard, anti-cheat timers, custom targets, notifications, social features, native app. Don't
-build them speculatively. Open product questions are in `prd.md` §12; ask before deciding them.
+build them speculatively. Open product questions are in `docs/proyecto.md` §Product → Open Questions; ask before deciding them.

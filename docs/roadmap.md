@@ -17,7 +17,7 @@
 | `R100-T08` | Landscape / nightstand mode: full-screen goal, swipe between goals, Wake Lock | 4 | T06, T07 | pendiente | |
 | `R100-T09` | Completion animation + light/dark following system | 4 | T06 | pendiente | |
 
-## Open questions (block nothing above yet; `prd.md` §12)
+## Open questions (block nothing above yet; `docs/proyecto.md` §Product → Open Questions)
 
 1. Does a missed day end the challenge, or is it 100 completed days regardless of gaps? **Affects T03 (streak and status logic).**
 2. What happens after Day 100?
