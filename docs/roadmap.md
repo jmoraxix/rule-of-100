@@ -19,6 +19,9 @@
 | `R100-T07` | Daily screen, timer mode (start once, pause/resume, survives refresh, one running timer) | 3 | T05 | pr-abierto | [#9](https://github.com/jmoraxix/rule-of-100/pull/9) |
 | `R100-T08` | Landscape / nightstand mode: full-screen goal, swipe between goals, Wake Lock | 4 | T06, T07 | pr-abierto | [#9](https://github.com/jmoraxix/rule-of-100/pull/9) |
 | `R100-T09` | Completion animation + light/dark following system | 4 | T06 | pr-abierto | [#9](https://github.com/jmoraxix/rule-of-100/pull/9) |
+| `R100-I02` | Infra: push migrations to hosted Supabase, auth config for review (auth config pending: owner, project not reachable by CLI token) | infra | T03 | parcial | — |
+| `R100-F01` | `timer_pause` FOR UPDATE lock (security MINOR #8) | 1 | T03 | pendiente | — |
+| `R100-F02` | Mutation tests for midnight cap, ownership filter, one-timer pre-check, revokes (security MINOR #8) | 1 | T03 | pendiente | — |
 
 ## Open questions (block nothing above yet; `docs/proyecto.md` §Product → Open Questions)
 
@@ -29,6 +32,7 @@
 
 <!-- Newest first: `- YYYY-MM-DD · [ID](tareas/ID.md) — title · #PR` -->
 
+- 2026-10-05 · [R100-I02](tareas/R100-I02.md) — Infra: migrations pushed to hosted Supabase; auth config pending (owner)
 - 2026-10-05 · [R100-T02](tareas/R100-T02.md) — Schema + RLS: profiles, challenges, daily_entries · #6
 - 2026-10-05 · [R100-C01](tareas/R100-C01.md) — Chore: keep the Supabase agent skill · #7
 - 2026-10-05 · [R100-I01](tareas/R100-I01.md) — Infra: Vercel project + hosted Supabase · #4
