@@ -29,6 +29,7 @@
 | `R100-T10` | UI tweaks: +1 beside counter, Pause button, larger fluid text, Google button, countdown timer with beep | 5 | T04-T09 | hecha | [#10](https://github.com/jmoraxix/rule-of-100/pull/10) |
 | `R100-T11` | Timer stops at 0 (6000 s) on the server unless overtime; "Start overtime"; ring fits viewport, `+` button, one control slot in the ring | 5 | T03, T10 | hecha | [#11](https://github.com/jmoraxix/rule-of-100/pull/11) |
 | `R100-F07` | Cap the 1 s 'Syncing…' poll at 0 (security MINOR #11) | 5 | T11 | pendiente | [#11](https://github.com/jmoraxix/rule-of-100/pull/11) |
+| `R100-F08` | Serve `icon.svg` and static metadata files without auth (proxy matcher) | 5 | T11 | pr-abierto | [#12](https://github.com/jmoraxix/rule-of-100/pull/12) |
 
 ## Open questions (block nothing above yet; `docs/proyecto.md` §Product → Open Questions)
 
