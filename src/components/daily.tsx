@@ -23,11 +23,43 @@ const clock = (v: number) => {
   return `${v > 6000 ? "+" : ""}${String(Math.floor(r / 60)).padStart(2, "0")}:${String(r % 60).padStart(2, "0")}`;
 };
 
-function beep(ctx: AudioContext) {
-  for (let i = 0; i < 3; i++) {
+// Per-device settings (localStorage, in-memory fallback when storage is blocked).
+const KEY = "r100-settings";
+const subs = new Set<() => void>();
+let mem: string | null = null;
+const readRaw = () => {
+  if (mem === null) {
+    try {
+      mem = localStorage.getItem(KEY) ?? "";
+    } catch {
+      mem = "";
+    }
+  }
+  return mem;
+};
+const subSettings = (cb: () => void) => (subs.add(cb), () => void subs.delete(cb));
+function parseSettings(raw: string) {
+  try {
+    return { ring: true, sounds: true, ...(JSON.parse(raw || "{}") as object) };
+  } catch {
+    return { ring: true, sounds: true };
+  }
+}
+function saveSettings(next: { ring: boolean; sounds: boolean }) {
+  mem = JSON.stringify(next);
+  try {
+    localStorage.setItem(KEY, mem);
+  } catch {
+    // blocked storage: setting lasts until reload
+  }
+  subs.forEach((f) => f());
+}
+
+function beep(ctx: AudioContext, n = 3, freq = 880) {
+  for (let i = 0; i < n; i++) {
     const o = ctx.createOscillator();
     const gain = ctx.createGain();
-    o.frequency.value = 880;
+    o.frequency.value = freq;
     gain.gain.value = 0.2;
     o.connect(gain).connect(ctx.destination);
     const t = ctx.currentTime + i * 0.4;
@@ -52,6 +84,8 @@ export default function Daily({ initial, initialId }: { initial: Goal[]; initial
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const landscape = useLandscape();
+  const settings = parseSettings(useSyncExternalStore(subSettings, readRaw, () => ""));
+  const [showSet, setShowSet] = useState(false);
   const queue = useRef<Promise<void>>(Promise.resolve());
   const inflight = useRef(0);
   const swiped = useRef(false);
@@ -132,8 +166,10 @@ export default function Daily({ initial, initialId }: { initial: Goal[]; initial
   useEffect(() => {
     const p = prevVal.current;
     prevVal.current = { id: g.id, v: value };
-    if (g.unit_type === "minutes" && p.id === g.id && p.v < 6000 && value >= 6000 && audio.current) beep(audio.current);
-  }, [g.id, g.unit_type, value]);
+    if (g.unit_type !== "minutes" || p.id !== g.id || !audio.current || !settings.sounds) return;
+    if (p.v < 6000 && value >= 6000) beep(audio.current);
+    else if (p.v < 3000 && value >= 3000) beep(audio.current, 1, 520); // 50%: one lower beep
+  }, [g.id, g.unit_type, value, settings.sounds]);
 
   // Completion pop: only when this goal flips to done while on screen.
   const [prev, setPrev] = useState({ id: g.id, done });
@@ -181,6 +217,38 @@ export default function Daily({ initial, initialId }: { initial: Goal[]; initial
   const state = over ? "Overachieved" : done ? "Complete" : "";
   const shell = `${over ? "over" : ""} bg-background text-foreground`;
   const numeral = `num complete-num font-semibold leading-none ${pop ? "" : "[animation:none]"}`;
+  const pct = Math.floor((value / target(g)) * 100);
+  const ringOn = settings.ring;
+  const ring = (box: string, text: string, tcls: string) => (
+    <div className={`relative grid shrink-0 aspect-square place-items-center ${ringOn ? box : ""}`}>
+      {ringOn && (
+        <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full -rotate-90" aria-hidden="true">
+          <circle cx="50" cy="50" r="48" fill="none" stroke="var(--line)" strokeWidth="1.5" />
+          <circle
+            cx="50"
+            cy="50"
+            r="48"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            pathLength={100}
+            strokeDasharray={100}
+            strokeDashoffset={100 - Math.min(100, (value / target(g)) * 100)}
+            className="motion-safe:transition-[stroke-dashoffset] motion-safe:duration-500"
+          />
+        </svg>
+      )}
+      <p
+        className={`${numeral} ${text}`}
+        role={count ? undefined : "timer"}
+        aria-live={count ? "polite" : undefined}
+        aria-label={count ? `${value} today` : undefined}
+      >
+        {shown}
+      </p>
+      {ringOn && <p className={`absolute bottom-[16%] ${tcls}`}>{pct}%</p>}
+    </div>
+  );
   const sub = "text-muted text-[clamp(1.125rem,min(3.6vw,3.6vh),1.875rem)]";
 
   if (landscape) {
@@ -204,13 +272,11 @@ export default function Daily({ initial, initialId }: { initial: Goal[]; initial
             Day {g.day_number}/100 · streak {g.streak}
           </span>
         </span>
-        <span
-          className={`${numeral} text-[min(52vh,32vw)]`}
-          role={count ? undefined : "timer"}
-          aria-live={count ? "polite" : undefined}
-        >
-          {shown}
-        </span>
+        {ring(
+          "h-[84vh]",
+          ringOn ? (count ? "text-[26vh]" : "text-[17vh]") : "text-[min(52vh,32vw)]",
+          `${sub} text-[clamp(1rem,4vh,1.5rem)]`,
+        )}
         <span className={`absolute bottom-4 left-6 ${sub}`}>
           {error || state}
           {goals.length > 1 && ` ${idx + 1} of ${goals.length}`}
@@ -271,19 +337,34 @@ export default function Daily({ initial, initialId }: { initial: Goal[]; initial
           <Link href="/new" className="link">
             New goal
           </Link>
+          <button type="button" className="link" aria-expanded={showSet} onClick={() => setShowSet((v) => !v)}>
+            Settings
+          </button>
           <SignOut />
         </nav>
       </header>
+      {showSet && (
+        <div className="mt-3 flex flex-col border border-line px-4">
+          {(["ring", "sounds"] as const).map((k) => (
+            <label key={k} className="flex min-h-11 items-center justify-between gap-4">
+              {k === "ring" ? "Progress ring" : "Sounds"}
+              <input
+                type="checkbox"
+                className="size-6 accent-foreground"
+                checked={settings[k]}
+                onChange={(e) => saveSettings({ ...settings, [k]: e.target.checked })}
+              />
+            </label>
+          ))}
+        </div>
+      )}
       <section className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
         <div className="flex w-full items-center justify-center gap-4">
-          <p
-            className={`${numeral} ${count ? "text-[clamp(5rem,30vw,14rem)]" : "text-[clamp(4rem,22vw,10rem)]"}`}
-            role={count ? undefined : "timer"}
-            aria-live={count ? "polite" : undefined}
-            aria-label={count ? `${value} today` : undefined}
-          >
-            {shown}
-          </p>
+          {ring(
+            count ? "w-[46vw]" : "w-[50vw]",
+            ringOn ? (count ? "text-[clamp(3rem,20vw,8rem)]" : "text-[clamp(2.25rem,12vw,5rem)]") : count ? "text-[clamp(5rem,30vw,14rem)]" : "text-[clamp(4rem,22vw,10rem)]",
+            `${sub} text-[clamp(0.875rem,3.4vw,1.25rem)]`,
+          )}
           {count ? (
             <button type="button" onClick={tap} aria-label="Add one" className={`${big} min-w-[34vw] px-4 text-[clamp(2.5rem,12vw,5rem)]`}>
               +1
