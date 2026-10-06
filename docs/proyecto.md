@@ -226,6 +226,6 @@ Row Level Security: users read only their own rows. Progress changes only throug
 - Native app wrapper
 
 ### 12. Open Questions
-1. Does a missed day end the challenge, or is it "100 completed days" regardless of gaps?
+1. ~~Does a missed day end the challenge, or is it "100 completed days" regardless of gaps?~~ **Resolved 2026-10-05:** a missed day does NOT end the challenge; the challenge is 100 completed days regardless of gaps. The streak is a separate count that resets on a missed day.
 2. What happens after Day 100 — new challenge, badge, archive?
 3. Timer: allow seconds for testing in dev only?
