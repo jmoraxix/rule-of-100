@@ -26,6 +26,7 @@
 | `R100-F04` | `loadActive` swallows errors and redirects to onboarding; surface the error ([#9 security review](https://github.com/jmoraxix/rule-of-100/pull/9#issuecomment-6009037953)) | 2 | T05 | pendiente | — |
 | `R100-F05` | e2e check: signed-out access to `/` and `/goals/:id` redirects ([#9 security review](https://github.com/jmoraxix/rule-of-100/pull/9#issuecomment-6009037953)) | 2 | T04 | pendiente | — |
 | `R100-F06` | Google sign-in (needs owner OAuth client) | 2 | T04 | pendiente | — |
+| `R100-T10` | UI tweaks: +1 beside counter, Pause button, larger fluid text, Google button, countdown timer with beep | 5 | T04-T09 | pr-abierto | [#10](https://github.com/jmoraxix/rule-of-100/pull/10) |
 
 ## Open questions (block nothing above yet; `docs/proyecto.md` §Product → Open Questions)
 

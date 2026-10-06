@@ -10,3 +10,4 @@ next-env.d.ts
 supabase/.branches/
 supabase/.temp/
 .vercel
+.playwright-mcp/

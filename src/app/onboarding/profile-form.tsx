@@ -29,7 +29,7 @@ export default function ProfileForm() {
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-4">
-      <label htmlFor="name" className="text-sm font-medium">
+      <label htmlFor="name" className="text-[clamp(1rem,3.6vw,1.375rem)] font-medium">
         Display name
       </label>
       <input
@@ -42,11 +42,11 @@ export default function ProfileForm() {
         onChange={(e) => setName(e.target.value)}
         className="field"
       />
-      <p className="text-sm text-muted">
+      <p className="text-[clamp(1rem,3.6vw,1.375rem)] text-muted">
         Your days follow this timezone: <span className="font-medium text-foreground">{timezone}</span>
       </p>
       {error && (
-        <p role="alert" className="text-sm">
+        <p role="alert" className="text-[clamp(1rem,3.6vw,1.375rem)]">
           {error}
         </p>
       )}
