@@ -76,6 +76,8 @@ pnpm test:db supabase/tests/<file>.test.sql   # one pgTAP file
   `docs/tareas/README.md`). One file per task means no conflicts between PRs.
 - After each merge, the post-merge agent sets `estado: hecha` in the task file and updates the task's
   row and log line in `docs/roadmap.md`.
+- Post-merge commits that touch only `docs/roadmap.md` and `docs/tareas/` go straight to `main` (owner
+  decision 2026-10-05). Anything else needs a PR.
 
 ## Repo tools
 
