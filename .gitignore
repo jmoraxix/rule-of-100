@@ -3,3 +3,8 @@
 node_modules/
 .next/
 .env*.local
+*.tsbuildinfo
+next-env.d.ts
+.claude/worktrees/
+supabase/.branches/
+supabase/.temp/

@@ -42,14 +42,16 @@ log progress, and the one that nudges the user toward a single goal.
 
 ## Verification commands
 
-Defined by task `R100-T01` (scaffold). Until then there are no gates. Planned:
+Defined by task `R100-T01` (scaffold). The same gates run in CI on every PR and push to `main`.
 
 ```bash
 pnpm install --frozen-lockfile
 pnpm typecheck
 pnpm lint
 pnpm build
-pnpm test:db      # pgTAP tests against local Supabase (supabase test db)
+pnpm db:start     # local Supabase (Docker); pnpm db:stop when done
+pnpm test:db      # pgTAP tests in supabase/tests/ (supabase test db)
+pnpm test:db supabase/tests/<file>.test.sql   # one pgTAP file
 ```
 
 ## Definition of done
