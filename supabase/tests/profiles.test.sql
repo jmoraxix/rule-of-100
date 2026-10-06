@@ -1,5 +1,5 @@
 begin;
-select plan(17);
+select plan(18);
 
 -- Fixtures (as postgres): users A, B, C; profiles for A and B.
 insert into auth.users (id, email) values
@@ -47,8 +47,11 @@ select is_empty(
   $$update public.profiles set display_name = 'hacked' where id = '00000000-0000-0000-0000-00000000000a' returning id$$,
   'B cannot update A''s profile');
 select lives_ok(
-  $$update public.profiles set display_name = 'Bee', timezone = 'Asia/Tokyo' where id = '00000000-0000-0000-0000-00000000000b'$$,
-  'B can update its own profile');
+  $$update public.profiles set display_name = 'Bee' where id = '00000000-0000-0000-0000-00000000000b'$$,
+  'B can update its own display_name');
+select throws_ok(
+  $$update public.profiles set timezone = 'Asia/Tokyo' where id = '00000000-0000-0000-0000-00000000000b'$$,
+  '42501', null, 'timezone cannot be updated after insert');
 select throws_ok(
   $$update public.profiles set id = '00000000-0000-0000-0000-00000000000c' where id = '00000000-0000-0000-0000-00000000000b'$$,
   '42501', null, 'B cannot change its profile id');
