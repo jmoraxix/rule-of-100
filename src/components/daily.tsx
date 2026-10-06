@@ -40,7 +40,8 @@ const readRaw = () => {
 const subSettings = (cb: () => void) => (subs.add(cb), () => void subs.delete(cb));
 function parseSettings(raw: string) {
   try {
-    return { ring: true, sounds: true, ...(JSON.parse(raw || "{}") as object) };
+    const s = { ring: true, sounds: true, ...(JSON.parse(raw || "{}") as object) } as Record<string, unknown>;
+    return { ring: s.ring === true, sounds: s.sounds === true };
   } catch {
     return { ring: true, sounds: true };
   }
@@ -111,7 +112,8 @@ export default function Daily({ initial, initialId }: { initial: Goal[]; initial
     };
   }, [refresh]);
 
-  const anyRunning = goals.some((g) => g.timer_running);
+  // A capped timer (reached 0 without overtime) is shown stopped even before the server folds it.
+  const anyRunning = goals.some((g) => g.timer_running && !g.timer_capped);
   useEffect(() => {
     if (!anyRunning) return;
     const i = setInterval(() => setNow(Date.now()), 1000);
@@ -151,13 +153,24 @@ export default function Daily({ initial, initialId }: { initial: Goal[]; initial
 
   const idx = Math.max(0, goals.findIndex((g) => g.id === activeId));
   const g = goals[idx];
-  const value =
-    g.unit_type === "count"
-      ? g.today_value + pending
-      : g.today_value + (g.timer_running ? Math.max(0, Math.floor((now - g.at) / 1000)) : 0);
+  const count = g.unit_type === "count";
+  const ticking = g.timer_running && !g.timer_capped;
+  const raw = count ? g.today_value + pending : g.today_value + (ticking ? Math.max(0, Math.floor((now - g.at) / 1000)) : 0);
+  // Without overtime the server stops the timer at 6000 s (00:00); mirror that locally.
+  const value = count || g.overtime ? raw : Math.min(6000, raw);
+  const running = ticking && (g.overtime || value < 6000);
+  const fresh = g.today_value === 0 && !g.timer_running;
+  // Local clock hit 0 but the server hasn't said so yet (clock skew): wait for it, don't offer overtime.
+  const waiting = !count && !g.overtime && ticking && raw >= 6000;
   const done = value >= target(g) || g.today_completed;
   const over = value > target(g);
   const shown = g.unit_type === "count" ? String(value) : clock(value);
+
+  useEffect(() => {
+    if (!waiting) return;
+    const i = setInterval(() => void refresh(), 1000); // ponytail: polls until the server confirms
+    return () => clearInterval(i);
+  }, [waiting, refresh]);
 
   // Beep once when a running timer crosses 0 on screen. Loading past 0 stays silent
   // (prevVal starts at the loaded value). ponytail: silent when locked or backgrounded.
@@ -204,22 +217,32 @@ export default function Daily({ initial, initialId }: { initial: Goal[]; initial
     // Needs a user gesture: create/resume the AudioContext on Start/Resume.
     audio.current ??= new AudioContext();
     void audio.current.resume();
-    const fn = g.timer_running ? "timer_pause" : g.today_value === 0 ? "timer_start" : "timer_resume";
-    const { error } = await supabase.rpc(fn, { p_challenge: g.id });
+    // timer_resume at 6000 is "Start overtime" (the server sets overtime).
+    const fn = running ? "timer_pause" : fresh ? "timer_start" : "timer_resume";
+    let { error } = await supabase.rpc(fn, { p_challenge: g.id });
+    if (error?.message.includes("already running")) {
+      await refresh(); // stale view: re-sync, then retry once
+      ({ error } = await supabase.rpc(fn, { p_challenge: g.id }));
+    }
     if (error) setError(error.message);
     await refresh();
     setBusy(false);
   }
 
-  const count = g.unit_type === "count";
-  const running = g.timer_running;
-  const timerLabel = running ? "Pause" : g.today_value === 0 ? "Start" : "Resume";
+  const timerLabel = running ? "Pause" : waiting ? "Syncing…" : !g.overtime && value >= 6000 ? "Start overtime" : fresh ? "Start" : "Resume";
   const state = over ? "Overachieved" : done ? "Complete" : "";
   const shell = `${over ? "over" : ""} bg-background text-foreground`;
   const numeral = `num complete-num font-semibold leading-none ${pop ? "" : "[animation:none]"}`;
-  const pct = Math.floor((value / target(g)) * 100);
   const ringOn = settings.ring;
-  const ring = (box: string, text: string, tcls: string) => (
+  // One fixed slot for Start / Pause / Resume / Start overtime: same size, so nothing shifts.
+  const control = (cls: string) =>
+    !count && (
+      <button type="button" onClick={() => void toggle()} disabled={busy || waiting} className={`btn h-12 whitespace-nowrap px-2 ${cls}`}>
+        {timerLabel}
+      </button>
+    );
+  // box sizes the ring with min(vw, vh) so it always fits the viewport.
+  const ring = (box: string, text: string, ctl: string) => (
     <div className={`relative grid shrink-0 aspect-square place-items-center ${ringOn ? box : ""}`}>
       {ringOn && (
         <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full -rotate-90" aria-hidden="true">
@@ -238,15 +261,17 @@ export default function Daily({ initial, initialId }: { initial: Goal[]; initial
           />
         </svg>
       )}
-      <p
-        className={`${numeral} ${text}`}
-        role={count ? undefined : "timer"}
-        aria-live={count ? "polite" : undefined}
-        aria-label={count ? `${value} today` : undefined}
-      >
-        {shown}
-      </p>
-      {ringOn && <p className={`absolute bottom-[16%] ${tcls}`}>{pct}%</p>}
+      <div className="relative flex flex-col items-center gap-[min(2vw,2vh)]">
+        <p
+          className={`${numeral} ${text}`}
+          role={count ? undefined : "timer"}
+          aria-live={count ? "polite" : undefined}
+          aria-label={count ? `${value} today` : undefined}
+        >
+          {shown}
+        </p>
+        {control(ctl)}
+      </div>
     </div>
   );
   const sub = "text-muted text-[clamp(1.125rem,min(3.6vw,3.6vh),1.875rem)]";
@@ -273,9 +298,9 @@ export default function Daily({ initial, initialId }: { initial: Goal[]; initial
           </span>
         </span>
         {ring(
-          "h-[84vh]",
-          ringOn ? (count ? "text-[26vh]" : "text-[17vh]") : "text-[min(52vh,32vw)]",
-          `${sub} text-[clamp(1rem,4vh,1.5rem)]`,
+          "w-[min(80vh,50vw)]",
+          ringOn ? (count ? "text-[min(26vh,16vw)]" : "text-[min(14vh,8vw)]") : count ? "text-[min(52vh,32vw)]" : "text-[min(40vh,22vw)]",
+          "w-[min(44vh,11rem)] text-[clamp(0.875rem,4vh,1.125rem)]",
         )}
         <span className={`absolute bottom-4 left-6 ${sub}`}>
           {error || state}
@@ -304,21 +329,12 @@ export default function Daily({ initial, initialId }: { initial: Goal[]; initial
             {...swipe}
           >
             {body}
-            <button
-              type="button"
-              onClick={() => void toggle()}
-              disabled={busy}
-              className="btn absolute bottom-4 right-6 h-[clamp(4rem,18vh,6rem)] px-8 text-[clamp(1.5rem,7vh,2.5rem)]"
-            >
-              {timerLabel}
-            </button>
           </div>
         )}
       </div>
     );
   }
 
-  const big = "btn h-[clamp(6rem,26vw,10rem)]";
   return (
     <main className={`${shell} relative flex min-h-dvh flex-col px-6 pb-8 pt-6 ${pop ? "complete-ring" : ""}`}>
       <header className="flex items-start justify-between gap-4">
@@ -361,20 +377,19 @@ export default function Daily({ initial, initialId }: { initial: Goal[]; initial
       <section className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
         <div className="flex w-full items-center justify-center gap-4">
           {ring(
-            count ? "w-[46vw]" : "w-[50vw]",
-            ringOn ? (count ? "text-[clamp(3rem,20vw,8rem)]" : "text-[clamp(2.25rem,12vw,5rem)]") : count ? "text-[clamp(5rem,30vw,14rem)]" : "text-[clamp(4rem,22vw,10rem)]",
-            `${sub} text-[clamp(0.875rem,3.4vw,1.25rem)]`,
+            count ? "w-[min(62vw,46vh)]" : "w-[min(84vw,52vh)]",
+            ringOn ? (count ? "text-[min(18vw,13vh)]" : "text-[min(13vw,7vh)]") : count ? "text-[clamp(5rem,30vw,14rem)]" : "text-[clamp(4rem,22vw,10rem)]",
+            "w-[min(46vw,11rem)] text-[clamp(0.875rem,4vw,1.125rem)]",
           )}
-          {count ? (
-            <button type="button" onClick={tap} aria-label="Add one" className={`${big} min-w-[34vw] px-4 text-[clamp(2.5rem,12vw,5rem)]`}>
-              +1
+          {count && (
+            <button
+              type="button"
+              onClick={tap}
+              aria-label="Add 1"
+              className="btn aspect-square h-[min(18vw,11vh)] text-[min(12vw,8vh)] leading-none"
+            >
+              +
             </button>
-          ) : (
-            running && (
-              <button type="button" onClick={() => void toggle()} disabled={busy} className={`${big} px-6 text-[clamp(1.5rem,7vw,3rem)]`}>
-                Pause
-              </button>
-            )
           )}
         </div>
         <p className={`min-h-8 font-medium uppercase tracking-widest ${sub}`} aria-live="polite">
@@ -385,11 +400,6 @@ export default function Daily({ initial, initialId }: { initial: Goal[]; initial
         <p role="alert" className={`mb-3 text-center ${sub}`}>
           {error}
         </p>
-      )}
-      {!count && !running && (
-        <button type="button" onClick={() => void toggle()} disabled={busy} className={`${big} w-full`}>
-          {timerLabel}
-        </button>
       )}
     </main>
   );
