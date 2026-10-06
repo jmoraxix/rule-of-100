@@ -29,7 +29,9 @@ you didn't start.
 
 Work runs through the `/trabajo` cycle. `docs/proyecto.md` is its contract (invariants, gates,
 definition of done, resource policy) and `docs/roadmap.md` is the board. Each PR adds
-`docs/tareas/<ID>.md` and may update its own roadmap row; roadmap/tareas-only changes go straight to `main`. The owner merges; agents never do.
+`docs/tareas/<ID>.md` and may update its own roadmap row. Only changes touching `docs/roadmap.md`
+and/or `docs/tareas/` go straight to `main`; everything else needs a PR. The owner merges; agents
+never do.
 
 ## Planned stack
 
