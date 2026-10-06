@@ -31,5 +31,6 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|favicon.ico).*)"],
+  // Static metadata files must be public so signed-out pages (/login) get their icon.
+  matcher: ["/((?!_next|favicon\\.ico|icon\\.svg|apple-icon|robots\\.txt|manifest).*)"],
 };
