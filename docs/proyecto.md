@@ -72,12 +72,13 @@ pnpm test:db supabase/tests/<file>.test.sql   # one pgTAP file
 
 ## Task log by files
 
-- **PRs do not edit `docs/roadmap.md`.** Each PR creates its `docs/tareas/<ID>.md` (format in
-  `docs/tareas/README.md`). One file per task means no conflicts between PRs.
-- After each merge, the post-merge agent sets `estado: hecha` in the task file and updates the task's
-  row and log line in `docs/roadmap.md`.
-- Post-merge commits that touch only `docs/roadmap.md` and `docs/tareas/` go straight to `main` (owner
-  decision 2026-10-05). Anything else needs a PR.
+1. Each task's PR creates its `docs/tareas/<ID>.md` (format in `docs/tareas/README.md`) and may update
+   its own row and log line in `docs/roadmap.md`.
+2. When a change would make a PR containing ONLY `docs/roadmap.md` and/or `docs/tareas/` (e.g. post-merge
+   bookkeeping), commit it straight to `main`, no PR (never force-push).
+3. Anything else needs a PR.
+
+After each merge, the post-merge agent sets `estado: hecha` in the task file.
 
 ## Repo tools
 
