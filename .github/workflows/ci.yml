@@ -22,6 +22,10 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm build
+        env:
+          # Build-time placeholders: the app fails fast without them, real values come from the host.
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder
       - uses: supabase/setup-cli@v1
         with:
           version: 2.119.0

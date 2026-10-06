@@ -13,12 +13,12 @@
 | `R100-C01` | Chore: keep the Supabase agent skill in the repo (`.agents/skills/supabase`, `.claude/skills/supabase` symlink, `skills-lock.json`) | chore | — | hecha | [#7](https://github.com/jmoraxix/rule-of-100/pull/7) |
 | `R100-T02` | Schema + RLS: `profiles`, `challenges`, `daily_entries`, constraints (unique entry per day, one running timer per user), pgTAP tests | 1 | T01 | hecha | [#6](https://github.com/jmoraxix/rule-of-100/pull/6) |
 | `R100-T03` | SQL functions: `increment`, `timer_start` / `timer_pause` / `timer_resume`, local-date from `profiles.timezone`, `completed_at` once, streak / day-number view | 1 | T02 | pr-abierto | [#8](https://github.com/jmoraxix/rule-of-100/pull/8) |
-| `R100-T04` | Auth (magic link + Google) + onboarding: capture timezone, create first goal. Auth settings from #2 security review: enable email confirmations, raise min password length, fix redirect URL scheme vs site_url. | 2 | T03 | pendiente | |
-| `R100-T05` | Goal list + create goal, with the strong warning on a second goal | 2 | T04 | pendiente | |
-| `R100-T06` | Daily screen, counter mode (`+1`, overachieved state) | 3 | T05 | pendiente | |
-| `R100-T07` | Daily screen, timer mode (start once, pause/resume, survives refresh, one running timer) | 3 | T05 | pendiente | |
-| `R100-T08` | Landscape / nightstand mode: full-screen goal, swipe between goals, Wake Lock | 4 | T06, T07 | pendiente | |
-| `R100-T09` | Completion animation + light/dark following system | 4 | T06 | pendiente | |
+| `R100-T04` | Auth (magic link + Google) + onboarding: capture timezone, create first goal. Auth settings from #2 security review: enable email confirmations, raise min password length, fix redirect URL scheme vs site_url. | 2 | T03 | pr-abierto | [#9](https://github.com/jmoraxix/rule-of-100/pull/9) |
+| `R100-T05` | Goal list + create goal, with the strong warning on a second goal | 2 | T04 | pr-abierto | [#9](https://github.com/jmoraxix/rule-of-100/pull/9) |
+| `R100-T06` | Daily screen, counter mode (`+1`, overachieved state) | 3 | T05 | pr-abierto | [#9](https://github.com/jmoraxix/rule-of-100/pull/9) |
+| `R100-T07` | Daily screen, timer mode (start once, pause/resume, survives refresh, one running timer) | 3 | T05 | pr-abierto | [#9](https://github.com/jmoraxix/rule-of-100/pull/9) |
+| `R100-T08` | Landscape / nightstand mode: full-screen goal, swipe between goals, Wake Lock | 4 | T06, T07 | pr-abierto | [#9](https://github.com/jmoraxix/rule-of-100/pull/9) |
+| `R100-T09` | Completion animation + light/dark following system | 4 | T06 | pr-abierto | [#9](https://github.com/jmoraxix/rule-of-100/pull/9) |
 
 ## Open questions (block nothing above yet; `docs/proyecto.md` §Product → Open Questions)
 
