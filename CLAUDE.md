@@ -25,6 +25,10 @@ push to `main`. Docker is shared with other projects: before `db:start`, check
 `docker ps --format '{{.Names}} {{.Ports}}'` for clashes on 54320–54329 and never stop containers
 you didn't start.
 
+- Schema changes go only through a new migration in `supabase/migrations/` plus pgTAP tests. Never
+  `execute_sql` or `supabase db query` to change the schema. This overrides the supabase skill's Option B.
+- Never submit Supabase skill feedback issues; give the owner the draft instead.
+
 ## How work happens
 
 Work runs through the `/trabajo` cycle. `docs/proyecto.md` is its contract (invariants, gates,

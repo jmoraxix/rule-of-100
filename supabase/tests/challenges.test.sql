@@ -1,5 +1,5 @@
 begin;
-select plan(18);
+select plan(20);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-00000000000a', 'a@test.local'),
@@ -41,18 +41,24 @@ select throws_ok(
   $$insert into public.challenges (user_id, action, unit_type, start_date) values ('00000000-0000-0000-0000-00000000000a', 'x', 'count', '2026-10-01')$$,
   '42501', null, 'B cannot insert a challenge as A');
 select is_empty(
-  $$update public.challenges set status = 'abandoned' where id = '10000000-0000-0000-0000-00000000000a' returning id$$,
+  $$update public.challenges set action = 'hacked' where id = '10000000-0000-0000-0000-00000000000a' returning id$$,
   'B cannot update A''s challenge');
-select lives_ok(
+select throws_ok(
   $$insert into public.challenges (user_id, action, unit_type, start_date) values ('00000000-0000-0000-0000-00000000000b', 'Push-ups', 'count', '2026-10-01')$$,
-  'B can insert its own challenge');
+  '42501', null, 'B cannot insert a challenge directly, even its own');
+select lives_ok(
+  $$select public.create_challenge('Push-ups', 'count')$$,
+  'B creates its own challenge through create_challenge');
 select throws_ok(
   $$insert into public.challenges (id, user_id, action, unit_type, start_date) values ('10000000-0000-0000-0000-0000000000bb', '00000000-0000-0000-0000-00000000000b', 'x', 'count', '2026-10-01')$$,
   '42501', null, 'B cannot choose the challenge id');
 select is((select count(*) from public.challenges), 1::bigint, 'B sees its own challenge');
 select lives_ok(
-  $$update public.challenges set action = 'Pull-ups', status = 'abandoned' where user_id = '00000000-0000-0000-0000-00000000000b'$$,
-  'B can update its own challenge');
+  $$update public.challenges set action = 'Pull-ups' where user_id = '00000000-0000-0000-0000-00000000000b'$$,
+  'B can rename its own challenge');
+select throws_ok(
+  $$update public.challenges set status = 'completed' where user_id = '00000000-0000-0000-0000-00000000000b'$$,
+  '42501', null, 'B cannot set status directly');
 select throws_ok(
   $$update public.challenges set user_id = '00000000-0000-0000-0000-00000000000a' where user_id = '00000000-0000-0000-0000-00000000000b'$$,
   '42501', null, 'B cannot change user_id');
