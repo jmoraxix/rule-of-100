@@ -9,6 +9,7 @@
 |---|---|---|---|---|---|
 | `R100-D01` | Move the PRD into `docs/proyecto.md` | docs | — | hecha | [#1](https://github.com/jmoraxix/rule-of-100/pull/1) |
 | `R100-T01` | Scaffold: Next.js (App Router) + TS strict + Tailwind + pnpm, Supabase local (`supabase init`), CI running the gates, Vercel project | 0 | — | hecha | [#2](https://github.com/jmoraxix/rule-of-100/pull/2) |
+| `R100-I01` | Infra: Vercel project + hosted Supabase (Marketplace) | infra | T01 | hecha | [#4](https://github.com/jmoraxix/rule-of-100/pull/4) |
 | `R100-T02` | Schema + RLS: `profiles`, `challenges`, `daily_entries`, constraints (unique entry per day, one running timer per user), pgTAP tests | 1 | T01 | pendiente | |
 | `R100-T03` | SQL functions: `increment`, `timer_start` / `timer_pause` / `timer_resume`, local-date from `profiles.timezone`, `completed_at` once, streak / day-number view | 1 | T02 | pendiente | |
 | `R100-T04` | Auth (magic link + Google) + onboarding: capture timezone, create first goal. Auth settings from #2 security review: enable email confirmations, raise min password length, fix redirect URL scheme vs site_url. | 2 | T03 | pendiente | |
@@ -27,5 +28,7 @@
 
 <!-- Newest first: `- YYYY-MM-DD · [ID](tareas/ID.md) — title · #PR` -->
 
+- 2026-10-05 · [R100-I01](tareas/R100-I01.md) — Infra: Vercel project + hosted Supabase · #4
+- 2026-10-05 · [R100-D01](tareas/R100-D01.md) — Post-merge docs follow-up (task log, T01 status) · #3
 - 2026-10-05 · [R100-T01](tareas/R100-T01.md) — Scaffold: Next.js + Supabase CLI + gates + CI · #2
 - 2026-10-05 · [R100-D01](tareas/R100-D01.md) — Move the PRD into docs/proyecto.md · #1
