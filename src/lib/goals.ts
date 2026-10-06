@@ -10,6 +10,8 @@ export type Goal = {
   today_value: number;
   today_completed: boolean;
   timer_running: boolean;
+  timer_capped: boolean; // reached 6000 while running without overtime: stopped
+  overtime: boolean;
   timer_started_at: string | null;
   last_activity_at: string | null;
 };
