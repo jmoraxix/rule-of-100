@@ -2,23 +2,110 @@
 
 :root {
   --background: #fff;
-  --foreground: #000;
+  --foreground: #111;
+  --muted: #6b6b6b;
+  --line: rgb(0 0 0 / 0.14);
   color-scheme: light dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #000;
-    --foreground: #fff;
+    --background: #0b0b0b;
+    --foreground: #f4f4f4;
+    --muted: #a0a0a0;
+    --line: rgb(255 255 255 / 0.2);
   }
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+  font-family: "SF Pro Display", "Helvetica Neue", system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+:focus-visible {
+  outline: 3px solid var(--foreground);
+  outline-offset: 3px;
+}
+
+.btn {
+  min-height: 48px;
+  padding: 0 1.25rem;
+  border-radius: 6px;
+  background: var(--foreground);
+  color: var(--background);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s;
+}
+.btn:active { transform: scale(0.98); }
+.btn:disabled { opacity: 0.5; }
+.btn-ghost {
+  background: transparent;
+  color: var(--foreground);
+  border: 1px solid var(--line);
+}
+
+.field {
+  min-height: 48px;
+  padding: 0 0.875rem;
+  border-radius: 6px;
+  border: 1px solid var(--foreground);
+  background: transparent;
+  font-size: 1rem;
+}
+
+.link {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* T09: completion moment. Transform/opacity only; off under reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .complete-num { animation: complete-pop 0.9s cubic-bezier(0.16, 1, 0.3, 1); }
+  .complete-ring::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 40vmin;
+    height: 40vmin;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    pointer-events: none;
+    animation: complete-ring 1.2s ease-out forwards;
+  }
+}
+@keyframes complete-pop {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+@keyframes complete-ring {
+  from { transform: scale(0.4); opacity: 0.9; }
+  to { transform: scale(2.6); opacity: 0; }
+}
+
+/* Overachieved (> 100): the only accent is inverted colors. */
+.over { --background: #111; --foreground: #fff; --muted: #b5b5b5; --line: rgb(255 255 255 / 0.3); }
+@media (prefers-color-scheme: dark) {
+  .over { --background: #f4f4f4; --foreground: #0b0b0b; --muted: #555; --line: rgb(0 0 0 / 0.3); }
 }
