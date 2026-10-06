@@ -36,12 +36,12 @@ export default function GoalForm({ confirmFirst }: { confirmFirst?: boolean }) {
       {confirmFirst && (
         <section role="alert" className="border-2 border-foreground p-4">
           <h2 className="text-lg font-semibold">Think twice before adding a second goal</h2>
-          <p className="mt-2 text-sm">
+          <p className="mt-2 text-[clamp(1rem,3.6vw,1.375rem)]">
             The Rule of 100 works because one action gets all of your attention. Every extra goal splits
             your effort and makes it likelier that all of them stall. Finish the first one, or keep this
             for later.
           </p>
-          <label className="mt-4 flex min-h-[44px] items-center gap-3 text-sm font-medium">
+          <label className="mt-4 flex min-h-[44px] items-center gap-3 text-[clamp(1rem,3.6vw,1.375rem)] font-medium">
             <input
               type="checkbox"
               checked={ok}
@@ -53,7 +53,7 @@ export default function GoalForm({ confirmFirst }: { confirmFirst?: boolean }) {
         </section>
       )}
       <div className="flex flex-col gap-2">
-        <label htmlFor="action" className="text-sm font-medium">
+        <label htmlFor="action" className="text-[clamp(1rem,3.6vw,1.375rem)] font-medium">
           Action
         </label>
         <input
@@ -67,7 +67,7 @@ export default function GoalForm({ confirmFirst }: { confirmFirst?: boolean }) {
         />
       </div>
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-2 text-sm font-medium">Count it as</legend>
+        <legend className="mb-2 text-[clamp(1rem,3.6vw,1.375rem)] font-medium">Count it as</legend>
         <div className="grid grid-cols-2 gap-3">
           {(["count", "minutes"] as const).map((u) => (
             <label
@@ -90,7 +90,7 @@ export default function GoalForm({ confirmFirst }: { confirmFirst?: boolean }) {
         </div>
       </fieldset>
       {error && (
-        <p role="alert" className="text-sm">
+        <p role="alert" className="text-[clamp(1rem,3.6vw,1.375rem)]">
           {error}
         </p>
       )}

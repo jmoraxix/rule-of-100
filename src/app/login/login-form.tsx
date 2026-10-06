@@ -24,6 +24,15 @@ export default function Login({ linkError }: { linkError: boolean }) {
     } else setState("sent");
   }
 
+  async function google() {
+    setError("");
+    const { error } = await createClient().auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${location.origin}/auth/callback` },
+    });
+    if (error) setError(error.message);
+  }
+
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-sm flex-col justify-center gap-10 px-6">
       <header>
@@ -37,7 +46,7 @@ export default function Login({ linkError }: { linkError: boolean }) {
         </p>
       ) : (
         <form onSubmit={submit} className="flex flex-col gap-3">
-          <label htmlFor="email" className="text-sm font-medium">
+          <label htmlFor="email" className="text-[clamp(1rem,3.6vw,1.375rem)] font-medium">
             Email
           </label>
           <input
@@ -51,12 +60,15 @@ export default function Login({ linkError }: { linkError: boolean }) {
             className="field"
           />
           {error && (
-            <p role="alert" className="text-sm">
+            <p role="alert" className="text-[clamp(1rem,3.6vw,1.375rem)]">
               {error}
             </p>
           )}
           <button type="submit" disabled={state === "sending"} className="btn">
             {state === "sending" ? "Sending" : "Send sign-in link"}
+          </button>
+          <button type="button" onClick={google} className="btn btn-ghost">
+            Continue with Google
           </button>
         </form>
       )}

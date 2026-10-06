@@ -14,7 +14,7 @@ export default async function Home() {
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-8 px-6 py-8">
-      <p role="note" className="border-l-2 border-foreground pl-3 text-sm text-muted">
+      <p role="note" className="border-l-2 border-foreground pl-3 text-[clamp(1rem,3.6vw,1.375rem)] text-muted">
         The rule works with one goal. Pick one and let the rest wait.
       </p>
       <h1 className="text-3xl font-semibold tracking-tight">Your goals</h1>
@@ -24,7 +24,7 @@ export default async function Home() {
             <Link href={`/goals/${g.id}`} className="flex min-h-[72px] items-center justify-between gap-4 py-4">
               <span>
                 <span className="block text-lg font-medium">{g.action}</span>
-                <span className="block text-sm text-muted">
+                <span className="block text-[clamp(1rem,3.6vw,1.375rem)] text-muted">
                   Day {g.day_number}/100 · streak {g.streak}
                 </span>
               </span>

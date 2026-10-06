@@ -11,7 +11,7 @@ export default async function NewGoal() {
   const goals = await loadActive(supabase);
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-8 px-6 py-8">
-      <Link href="/" className="link self-start text-sm text-muted">
+      <Link href="/" className="link self-start text-[clamp(1rem,3.6vw,1.375rem)] text-muted">
         Back
       </Link>
       <h1 className="text-3xl font-semibold tracking-tight">New goal</h1>

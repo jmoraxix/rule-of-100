@@ -8,7 +8,7 @@ export default function SignOut() {
   return (
     <button
       type="button"
-      className="link text-sm text-muted"
+      className="link text-[clamp(1rem,3.6vw,1.375rem)] text-muted"
       onClick={async () => {
         await createClient().auth.signOut();
         router.replace("/login");
