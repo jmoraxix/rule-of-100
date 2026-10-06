@@ -20,14 +20,15 @@
 | `R100-T08` | Landscape / nightstand mode: full-screen goal, swipe between goals, Wake Lock | 4 | T06, T07 | hecha | [#9](https://github.com/jmoraxix/rule-of-100/pull/9) |
 | `R100-T09` | Completion animation + light/dark following system | 4 | T06 | hecha | [#9](https://github.com/jmoraxix/rule-of-100/pull/9) |
 | `R100-I02` | Infra: push migrations to hosted Supabase, auth config for review (auth config pending: owner, project not reachable by CLI token) | infra | T03 | parcial | — |
-| `R100-F01` | `timer_pause` FOR UPDATE lock (security MINOR #8); done by T11 | 1 | T03 | pr-abierto | [#11](https://github.com/jmoraxix/rule-of-100/pull/11) |
+| `R100-F01` | `timer_pause` FOR UPDATE lock (security MINOR #8); done by T11 | 1 | T03 | hecha | [#11](https://github.com/jmoraxix/rule-of-100/pull/11) |
 | `R100-F02` | Mutation tests for midnight cap, ownership filter, one-timer pre-check, revokes (security MINOR #8) | 1 | T03 | pendiente | — |
 | `R100-F03` | Onboarding uses client `data.user!.id`; handle an expired session ([#9 security review](https://github.com/jmoraxix/rule-of-100/pull/9#issuecomment-6009037953)) | 2 | T04 | pendiente | — |
 | `R100-F04` | `loadActive` swallows errors and redirects to onboarding; surface the error ([#9 security review](https://github.com/jmoraxix/rule-of-100/pull/9#issuecomment-6009037953)) | 2 | T05 | pendiente | — |
 | `R100-F05` | e2e check: signed-out access to `/` and `/goals/:id` redirects ([#9 security review](https://github.com/jmoraxix/rule-of-100/pull/9#issuecomment-6009037953)) | 2 | T04 | pendiente | — |
 | `R100-F06` | Google sign-in (needs owner OAuth client) | 2 | T04 | pendiente | — |
-| `R100-T10` | UI tweaks: +1 beside counter, Pause button, larger fluid text, Google button, countdown timer with beep | 5 | T04-T09 | pr-abierto | [#10](https://github.com/jmoraxix/rule-of-100/pull/10) |
-| `R100-T11` | Timer stops at 0 (6000 s) on the server unless overtime; "Start overtime"; ring fits viewport, `+` button, one control slot in the ring | 5 | T03, T10 | pr-abierto | [#11](https://github.com/jmoraxix/rule-of-100/pull/11) |
+| `R100-T10` | UI tweaks: +1 beside counter, Pause button, larger fluid text, Google button, countdown timer with beep | 5 | T04-T09 | hecha | [#10](https://github.com/jmoraxix/rule-of-100/pull/10) |
+| `R100-T11` | Timer stops at 0 (6000 s) on the server unless overtime; "Start overtime"; ring fits viewport, `+` button, one control slot in the ring | 5 | T03, T10 | hecha | [#11](https://github.com/jmoraxix/rule-of-100/pull/11) |
+| `R100-F07` | Cap the 1 s 'Syncing…' poll at 0 (security MINOR #11) | 5 | T11 | pendiente | [#11](https://github.com/jmoraxix/rule-of-100/pull/11) |
 
 ## Open questions (block nothing above yet; `docs/proyecto.md` §Product → Open Questions)
 
@@ -37,6 +38,8 @@
 ## Log
 
 <!-- Newest first: `- YYYY-MM-DD · [ID](tareas/ID.md) — title · #PR` -->
+- 2026-10-05 · [R100-T11](tareas/R100-T11.md) — Timer stops at 0 on the server, overtime, ring fits viewport; closes F01 · #11
+- 2026-10-05 · [R100-T10](tareas/R100-T10.md) — UI tweaks: +1 beside counter, Pause, larger text, Google button, countdown · #10
 - 2026-10-05 · [R100-T04](tareas/R100-T04.md) — MVP UI: auth, onboarding, home, daily screen, landscape, completion (T04-T09) · #9
 - 2026-10-05 · [R100-T03](tareas/R100-T03.md) — SQL functions for progress + goal_progress view · #8
 
