@@ -160,9 +160,17 @@ export default function Daily({ initial, initialId }: { initial: Goal[]; initial
   const value = count || g.overtime ? raw : Math.min(6000, raw);
   const running = ticking && (g.overtime || value < 6000);
   const fresh = g.today_value === 0 && !g.timer_running;
+  // Local clock hit 0 but the server hasn't said so yet (clock skew): wait for it, don't offer overtime.
+  const waiting = !count && !g.overtime && ticking && raw >= 6000;
   const done = value >= target(g) || g.today_completed;
   const over = value > target(g);
   const shown = g.unit_type === "count" ? String(value) : clock(value);
+
+  useEffect(() => {
+    if (!waiting) return;
+    const i = setInterval(() => void refresh(), 1000); // ponytail: polls until the server confirms
+    return () => clearInterval(i);
+  }, [waiting, refresh]);
 
   // Beep once when a running timer crosses 0 on screen. Loading past 0 stays silent
   // (prevVal starts at the loaded value). ponytail: silent when locked or backgrounded.
@@ -211,13 +219,17 @@ export default function Daily({ initial, initialId }: { initial: Goal[]; initial
     void audio.current.resume();
     // timer_resume at 6000 is "Start overtime" (the server sets overtime).
     const fn = running ? "timer_pause" : fresh ? "timer_start" : "timer_resume";
-    const { error } = await supabase.rpc(fn, { p_challenge: g.id });
+    let { error } = await supabase.rpc(fn, { p_challenge: g.id });
+    if (error?.message.includes("already running")) {
+      await refresh(); // stale view: re-sync, then retry once
+      ({ error } = await supabase.rpc(fn, { p_challenge: g.id }));
+    }
     if (error) setError(error.message);
     await refresh();
     setBusy(false);
   }
 
-  const timerLabel = running ? "Pause" : !g.overtime && value >= 6000 ? "Start overtime" : fresh ? "Start" : "Resume";
+  const timerLabel = running ? "Pause" : waiting ? "Syncing…" : !g.overtime && value >= 6000 ? "Start overtime" : fresh ? "Start" : "Resume";
   const state = over ? "Overachieved" : done ? "Complete" : "";
   const shell = `${over ? "over" : ""} bg-background text-foreground`;
   const numeral = `num complete-num font-semibold leading-none ${pop ? "" : "[animation:none]"}`;
@@ -225,7 +237,7 @@ export default function Daily({ initial, initialId }: { initial: Goal[]; initial
   // One fixed slot for Start / Pause / Resume / Start overtime: same size, so nothing shifts.
   const control = (cls: string) =>
     !count && (
-      <button type="button" onClick={() => void toggle()} disabled={busy} className={`btn h-12 whitespace-nowrap px-2 ${cls}`}>
+      <button type="button" onClick={() => void toggle()} disabled={busy || waiting} className={`btn h-12 whitespace-nowrap px-2 ${cls}`}>
         {timerLabel}
       </button>
     );

@@ -1,5 +1,5 @@
 begin;
-select plan(58);
+select plan(64);
 
 -- A lives in Costa Rica (UTC-6, no DST), B in UTC. C has no profile.
 insert into auth.users (id, email) values
@@ -16,6 +16,8 @@ insert into public.challenges (id, user_id, action, unit_type, start_date) value
   ('10000000-0000-0000-0000-0000000000a4', '00000000-0000-0000-0000-00000000000a', 'Calls', 'count', '2026-01-01'),
   ('10000000-0000-0000-0000-0000000000a5', '00000000-0000-0000-0000-00000000000a', 'Drawing', 'minutes', '2026-01-01'),
   ('10000000-0000-0000-0000-0000000000a6', '00000000-0000-0000-0000-00000000000a', 'Writing', 'count', '2026-01-01'),
+  ('10000000-0000-0000-0000-0000000000a7', '00000000-0000-0000-0000-00000000000a', 'Piano', 'minutes', '2026-01-01'),
+  ('10000000-0000-0000-0000-0000000000a8', '00000000-0000-0000-0000-00000000000a', 'Chess', 'minutes', '2026-01-01'),
   ('10000000-0000-0000-0000-0000000000b1', '00000000-0000-0000-0000-00000000000b', 'Squats', 'count', '2026-01-01');
 
 -- Local date --------------------------------------------------------------------
@@ -47,6 +49,33 @@ select is((select timer_started_at from public.daily_entries where challenge_id 
 select is((select completed_at from public.daily_entries where challenge_id = '10000000-0000-0000-0000-0000000000a5'),
   (public._local_date('America/Costa_Rica', now())::timestamp at time zone 'America/Costa_Rica') - interval '500 seconds',
   'stale crossing sets completed_at at started_at + (6000 - old value) s, on its own day');
+
+-- Stale NON-overtime timers (T11), swept directly so no RPC side effects. Midnight = last local midnight.
+-- (a) 5900 s at start, 600 s before midnight: crosses 6000 at midnight - 500 s, credited exactly 6000.
+insert into public.daily_entries (challenge_id, user_id, entry_date, value, timer_started_at) values
+  ('10000000-0000-0000-0000-0000000000a7', '00000000-0000-0000-0000-00000000000a',
+   public._local_date('America/Costa_Rica', now()) - 1, 5900,
+   (public._local_date('America/Costa_Rica', now())::timestamp at time zone 'America/Costa_Rica') - interval '600 seconds');
+select public._pause_stale('00000000-0000-0000-0000-00000000000a');
+select is((select value from public.daily_entries where challenge_id = '10000000-0000-0000-0000-0000000000a7'), 6000,
+  'stale timer that crossed 6000 before midnight is credited exactly 6000');
+select is((select completed_at from public.daily_entries where challenge_id = '10000000-0000-0000-0000-0000000000a7'),
+  (public._local_date('America/Costa_Rica', now())::timestamp at time zone 'America/Costa_Rica') - interval '500 seconds',
+  'stale timer completed_at is the 6000 crossing');
+select is((select timer_started_at from public.daily_entries where challenge_id = '10000000-0000-0000-0000-0000000000a7'), null,
+  'stale timer past 6000 is cleared');
+-- (b) 100 s at start, 600 s before midnight: still below 6000 at midnight, credited only up to it.
+insert into public.daily_entries (challenge_id, user_id, entry_date, value, timer_started_at) values
+  ('10000000-0000-0000-0000-0000000000a8', '00000000-0000-0000-0000-00000000000a',
+   public._local_date('America/Costa_Rica', now()) - 1, 100,
+   (public._local_date('America/Costa_Rica', now())::timestamp at time zone 'America/Costa_Rica') - interval '600 seconds');
+select public._pause_stale('00000000-0000-0000-0000-00000000000a');
+select is((select value from public.daily_entries where challenge_id = '10000000-0000-0000-0000-0000000000a8'), 700,
+  'stale timer below 6000 is credited only up to local midnight');
+select is((select completed_at from public.daily_entries where challenge_id = '10000000-0000-0000-0000-0000000000a8'), null,
+  'stale timer below 6000 is not completed');
+select is((select timer_started_at from public.daily_entries where challenge_id = '10000000-0000-0000-0000-0000000000a8'), null,
+  'stale timer at midnight is cleared');
 
 -- Counter ----------------------------------------------------------------------
 set local role authenticated;
