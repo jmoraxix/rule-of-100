@@ -32,5 +32,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   // Static metadata files must be public so signed-out pages (/login) get their icon.
-  matcher: ["/((?!_next|favicon\\.ico|icon\\.svg|apple-icon|robots\\.txt|manifest).*)"],
+  // Each exclusion is anchored so lookalikes (/manifest-x, /icon.svgfoo) stay gated.
+  matcher: ["/((?!_next/|favicon\\.ico$|icon\\.svg$|apple-icon(?:\\.png)?$|robots\\.txt$|manifest\\.(?:webmanifest|json)$).*)"],
 };

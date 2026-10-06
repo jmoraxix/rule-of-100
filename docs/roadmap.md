@@ -30,7 +30,7 @@
 | `R100-T11` | Timer stops at 0 (6000 s) on the server unless overtime; "Start overtime"; ring fits viewport, `+` button, one control slot in the ring | 5 | T03, T10 | hecha | [#11](https://github.com/jmoraxix/rule-of-100/pull/11) |
 | `R100-F07` | Cap the 1 s 'Syncing…' poll at 0 (security MINOR #11) | 5 | T11 | pendiente | [#11](https://github.com/jmoraxix/rule-of-100/pull/11) |
 | `R100-F08` | Serve `icon.svg` and static metadata files without auth (proxy matcher) | 5 | T11 | hecha | [#12](https://github.com/jmoraxix/rule-of-100/pull/12) |
-| `R100-F09` | Anchor the proxy matcher exclusions (prefix match lets future `/manifest-*`-style routes skip auth; security MINOR [#12](https://github.com/jmoraxix/rule-of-100/pull/12#issuecomment-6010081749)) | 5 | F08 | pendiente | — |
+| `R100-F09` | Anchor the proxy matcher exclusions (prefix match lets future `/manifest-*`-style routes skip auth; security MINOR [#12](https://github.com/jmoraxix/rule-of-100/pull/12#issuecomment-6010081749)) | 5 | F08 | pr-abierto | [#13](https://github.com/jmoraxix/rule-of-100/pull/13) |
 
 ## Open questions (block nothing above yet; `docs/proyecto.md` §Product → Open Questions)
 
