@@ -2,10 +2,28 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Status
+@AGENTS.md
 
-Greenfield. Scope is `docs/proyecto.md` §Product. No app code yet; task `R100-T01` scaffolds it and must replace this
-section with the real commands (dev, build, lint, typecheck, `test:db`, single test).
+## Commands
+
+Scope is `docs/proyecto.md` §Product. Next.js 16 (App Router, `src/`), pnpm.
+
+```bash
+pnpm install --frozen-lockfile
+pnpm dev                 # next dev on :3000 (only when a task needs a browser check)
+pnpm typecheck           # tsc --noEmit
+pnpm lint                # eslint
+pnpm build               # next build
+pnpm db:start            # local Supabase (Docker); db:stop when done
+pnpm db:reset            # re-apply supabase/migrations/ + seed
+pnpm test:db             # all pgTAP tests in supabase/tests/
+pnpm test:db supabase/tests/smoke.test.sql   # a single pgTAP file
+```
+
+CI (`.github/workflows/ci.yml`) runs install, typecheck, lint, build and `test:db` on every PR and
+push to `main`. Docker is shared with other projects: before `db:start`, check
+`docker ps --format '{{.Names}} {{.Ports}}'` for clashes on 54320–54329 and never stop containers
+you didn't start.
 
 ## How work happens
 
